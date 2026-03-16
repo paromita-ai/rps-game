@@ -58,16 +58,18 @@ f_small  = load_font(21)
 f_tiny   = load_font(16)
 
 import os
-print("Python is looking here:", os.getcwd())
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# ─── Load Choice Images ───────────────────────────────────────────
-CHOICE_IMAGES = {}                              # ✅ CORRECT - outside game loop
+CHOICE_IMAGES = {}
 for _name in ["rock", "paper", "scissor"]:
     try:
-        img = pygame.image.load(f"{_name}.png").convert_alpha()
+        path = os.path.join(BASE_DIR, f"{_name}.png")
+        img = pygame.image.load(path).convert_alpha()
         CHOICE_IMAGES[_name] = img
+        print(f"Loaded: {path}")
     except FileNotFoundError:
         CHOICE_IMAGES[_name] = None
+        print(f"Not found: {path}")
 
 print(CHOICE_IMAGES)
 
