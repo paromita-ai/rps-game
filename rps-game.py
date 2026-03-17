@@ -5,33 +5,39 @@ import math
 
 pygame.init()
 
-# ─── Window & Clock ───────────────────────────────────────────────
+# ─── Screen Display ───────────────────────────────────────────────
 WIDTH, HEIGHT = 950, 680
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Rock  Paper  Scissors")
 clock = pygame.time.Clock()
 FPS = 60
 
-# ─── Palette ──────────────────────────────────────────────────────
-BG_TOP       = (8,  10, 28)
-BG_BOT       = (22, 8,  44)
-WHITE        = (255, 255, 255)
-OFF_WHITE    = (220, 220, 240)
-YELLOW       = (255, 210,  60)
-GREEN        = ( 60, 220, 130)
-RED          = (230,  70,  70)
-CYAN         = ( 80, 200, 255)
-PURPLE       = (150,  80, 240)
-DARK_CARD    = ( 20,  20,  50)
-MID_CARD     = ( 30,  30,  65)
-GRAY         = (100, 100, 130)
-LIGHT_GRAY   = (180, 180, 210)
+# ─── Color Palette ──────────────────────────────────────────────────────
+BG_TOP         = (8,  10, 28)
+BG_BOT         = (22, 8,  44)
+WHITE          = (255, 255, 255)
+OFF_WHITE      = (220, 220, 240)
+YELLOW         = (255, 210,  60)
+GREEN          = ( 60, 220, 130)
+RED            = (230,  70,  70)
+CYAN           = ( 80, 200, 255)
+PURPLE         = (150,  80, 240)
+DARK_CARD      = ( 20,  20,  50)
+MID_CARD       = ( 30,  30,  65)
+GRAY           = (100, 100, 130)
+LIGHT_GRAY     = (180, 180, 210)
+BLUEISH_PURPLE = (153,  51, 255)
+EMERALD_GREEN  = (50,  170, 130)
+WARM_CORAL     = (210, 90,  80)
+PINK           = (255, 105, 180)
+BLUE           = (50, 150, 255)
+
 
 
 CHOICE_COLOR = {
-    "rock":    (153,  51, 255),  # indigo blue
-    "paper":   (50,  170, 130),  # emerald green
-    "scissor": (210, 90,  80),   # warm coral
+    "rock":    BLUEISH_PURPLE,  
+    "paper":   EMERALD_GREEN,  
+    "scissor": WARM_CORAL ,   
 }
 CHOICE_GLOW = {
     "rock":    (130, 140, 255),
@@ -43,19 +49,17 @@ CHOICE_LABEL = {"rock": "Rock", "paper": "Paper", "scissor": "Scissors"}
 CHOICES = ["rock", "paper", "scissor"]
 
 # ─── Fonts ────────────────────────────────────────────────────────
-def load_font(size, bold=False):
-    for name in ["Segoe UI", "Calibri", "Verdana", "Arial"]:
-        try:
-            return pygame.font.SysFont(name, size, bold=bold)
-        except Exception:
-            pass
-    return pygame.font.Font(None, size)
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-f_title  = load_font(52, bold=True)
-f_big    = load_font(38, bold=True)
-f_med    = load_font(26)
-f_small  = load_font(21)
-f_tiny   = load_font(16)
+FONT_BOLD    = os.path.join(BASE_DIR, "Nunito-Bold.ttf")
+FONT_REGULAR = os.path.join(BASE_DIR, "Nunito-Regular.ttf")
+
+f_title  = pygame.font.Font(FONT_BOLD, 52)
+f_big    = pygame.font.Font(FONT_BOLD, 38)
+f_med    = pygame.font.Font(FONT_REGULAR, 26)
+f_small  = pygame.font.Font(FONT_REGULAR, 21)
+f_tiny   = pygame.font.Font(FONT_REGULAR, 16)
 
 import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -78,7 +82,7 @@ print(CHOICE_IMAGES)
 def lerp_color(a, b, t):
     return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3))
 
-def draw_rounded_rect(surf, color, rect, r=18, alpha=255, border=0, bc=None):
+def draw_rounded_rect(surf, color, rect, r=28, alpha=128, border=0, bc=None):
     rx, ry, rw, rh = rect
     if alpha < 255:
         tmp = pygame.Surface((rw, rh), pygame.SRCALPHA)
@@ -119,7 +123,7 @@ def draw_bg(surf, offset):
         _bg_cache[key] = tmp
     surf.blit(_bg_cache[key], (0, 0))
 
-# ─── Stars ────────────────────────────────────────────────────────
+# ─── Glittering Stars ────────────────────────────────────────────────────────
 stars = [
     (random.randint(0, WIDTH), random.randint(0, HEIGHT),
      random.uniform(0.3, 1.5), random.uniform(0, math.pi * 2))
@@ -128,23 +132,23 @@ stars = [
 
 def draw_stars(surf, t):
     for sx, sy, sr, phase in stars:
-        brightness = int(120 + 100 * math.sin(t * 0.8 + phase))
+        brightness = int(120 + 100 * math.sin(t * 3.5 + phase))
         brightness = max(40, min(220, brightness))
         pygame.draw.circle(surf, (brightness, brightness, brightness + 20),
                            (sx, sy), max(1, int(sr)))
-
-# ─── Particle System ──────────────────────────────────────────────
+        
+# ─── Particle Explosion System ──────────────────────────────────────────────
 class Particle:
     def __init__(self, x, y, color):
         angle = random.uniform(0, math.pi * 2)
-        speed = random.uniform(2, 7)
+        speed = random.uniform(5, 10)
         self.x, self.y = float(x), float(y)
         self.vx = math.cos(angle) * speed
         self.vy = math.sin(angle) * speed - random.uniform(1, 3)
         self.color = color
         self.life = 1.0
         self.decay = random.uniform(0.018, 0.045)
-        self.size = random.randint(5, 12)
+        self.size = random.randint(4, 9)
         self.gravity = random.uniform(0.1, 0.25)
 
     def update(self):
@@ -169,7 +173,7 @@ def spawn_particles(x, y, color, n=30):
     for _ in range(n):
         particles.append(Particle(x, y, color))
 
-# ─── Hand Icons ───────────────────────────────────────────────────
+# ─── Button Icons ───────────────────────────────────────────────────
 def draw_rock(surf, cx, cy, radius, color, outline=None):
     """Fist shape"""
     if outline is None:
@@ -247,7 +251,7 @@ def draw_choice_icon(surf, choice, cx, cy, size, color):
     else:
         DRAW_FN[choice](surf, cx, cy, size, color)
 
-# ─── Button drawing ───────────────────────────────────────────────
+# ─── Button Icon Drawing ───────────────────────────────────────────────
 def draw_choice_button(surf, choice, rect, scale, hovered, locked):
     cx, cy = rect.centerx, rect.centery
     w  = int(rect.width  * scale)
@@ -292,7 +296,7 @@ def draw_choice_button(surf, choice, rect, scale, hovered, locked):
                          WHITE if not locked else (90, 90, 110))
     surf.blit(lbl, lbl.get_rect(center=(cx, cy + int(38 * scale))))
 
-# ─── Score Card ───────────────────────────────────────────────────
+# ─── Score Board ───────────────────────────────────────────────────
 def draw_score_card(surf, x, y, w, h, label, value, color, leading=False, t=0):
     # Pulsing border if leading
     alpha = 255
@@ -313,18 +317,18 @@ history = []   # list of ("W"/"L"/"D", round_num)
 def add_history(result_str):
     tag = "W" if "You Win" in result_str else ("L" if "Computer" in result_str else "D")
     history.append(tag)
-    if len(history) > 10:
+    if len(history) > 15:
         history.pop(0)
 
 def draw_history(surf, x, y):
-    label = f_tiny.render("Round history:", True, GRAY)
+    label = f_tiny.render("Round history:", True, WHITE)
     surf.blit(label, (x, y))
     for i, tag in enumerate(history):
         col = GREEN if tag == "W" else (RED if tag == "L" else YELLOW)
         bx = x + i * 28
-        draw_rounded_rect(surf, col, (bx, y + 18, 22, 22), r=6, alpha=200)
+        draw_rounded_rect(surf, col, (bx, y + 20, 18, 18), r=6, alpha=200)
         ts = f_tiny.render(tag, True, DARK_CARD)
-        surf.blit(ts, ts.get_rect(center=(bx + 11, y + 29)))
+        surf.blit(ts, ts.get_rect(center=(bx + 9, y + 29)))
 
 # ─── Game State ───────────────────────────────────────────────────
 player_score    = 0
@@ -342,7 +346,7 @@ hover_scale = {c: 1.0 for c in CHOICES}
 pulse_t = 0.0
 bg_offset = 0.0
 
-BTN_Y = 510
+BTN_Y = 487
 BTN_W, BTN_H = 210, 110
 btn_rects = {
     "rock":    pygame.Rect(100, BTN_Y, BTN_W, BTN_H),
@@ -412,11 +416,13 @@ while running:
                             streak = max(1, streak + 1)
                             spawn_particles(cx, cy, GREEN,  45)
                             spawn_particles(cx, cy, YELLOW, 20)
+                            spawn_particles(cx, cy, PINK, 20)
                         elif "Computer" in result_str:
                             cpu_score += 1
                             streak = min(-1, streak - 1)
                             spawn_particles(cx, cy, RED,   35)
                             spawn_particles(cx, cy, PURPLE, 15)
+                            spawn_particles(cx, cy, BLUE,   35)
                         else:
                             draws += 1
                             streak = 0
@@ -448,18 +454,18 @@ while running:
     for p in particles:
         p.update()
 
-    # ═══════════════════════════════════════════════
     # DRAW
     # ═══════════════════════════════════════════════
     draw_bg(screen, bg_offset)
     draw_stars(screen, pulse_t)
+    # ═══════════════════════════════════════════════
 
-    # ── Decorative glow orbs ──
-    glow_y = HEIGHT // 2 + int(30 * math.sin(pulse_t * 0.5))
-    draw_glow_circle(screen, PURPLE, 120, glow_y, 90, layers=3, max_alpha=18)
-    draw_glow_circle(screen, CYAN,   830, glow_y, 90, layers=3, max_alpha=18)
+    # ── Glowing orbs ────────────────────────────
+    glow_y = HEIGHT // 2 + int(60 * math.sin(pulse_t * 1.0))
+    draw_glow_circle(screen, CYAN, 120, glow_y, 90, layers=3, max_alpha=18)
+    draw_glow_circle(screen, CYAN, 830, glow_y, 90, layers=3, max_alpha=18)
 
-    # ── Title ──
+    # ── Heading Title ──────────────────────────────────────────────────────
     title_shadow = f_title.render("Rock  Paper  Scissors", True, (20, 10, 50))
     title_surf   = f_title.render("Rock  Paper  Scissors", True, WHITE)
     screen.blit(title_shadow, title_shadow.get_rect(center=(WIDTH//2 + 3, 37)))
@@ -475,7 +481,7 @@ while running:
 
     draw_score_card(screen, 60,  102, 160, 82, "YOU",       player_score, GREEN,  p_lead, pulse_t)
     draw_score_card(screen, 240, 102, 120, 82, "DRAWS",     draws,        YELLOW, False,  pulse_t)
-    draw_score_card(screen, 380, 102, 110, 82, "ROUNDS",    len(history), CYAN,   False,  pulse_t)
+    draw_score_card(screen, 380, 102, 110, 82, "ROUNDS",    len(history), BLUE,   False,  pulse_t)
     draw_score_card(screen, 720, 102, 170, 82, "COMPUTER",  cpu_score,    RED,    c_lead, pulse_t)
 
     # Streak badge
@@ -487,8 +493,8 @@ while running:
         screen.blit(st, st.get_rect(center=(605, 128)))
         screen.blit(sn, sn.get_rect(center=(605, 155)))
 
-    # ── Middle Display Card ──
-    card_rect = (60, 205, WIDTH - 120, 285)
+        # ── Middle Display Card ──
+    card_rect = (60, 210, WIDTH - 120, 250)
     draw_rounded_rect(screen, MID_CARD, card_rect, r=24, alpha=220)
     pygame.draw.rect(screen, (55, 55, 100), card_rect, 1, border_radius=24)
 
@@ -510,7 +516,7 @@ while running:
         draw_glow_circle(screen, cc, ccx, ccy, 55, layers=3, max_alpha=35)
         draw_choice_icon(screen, cpu_choice, ccx, ccy, 55, cc)
         draw_text_centered(screen, "CPU",
-                           f_tiny, LIGHT_GRAY, ccx, ccy - 78)
+                           f_tiny, WHITE, ccx, ccy - 78)
         draw_text_centered(screen, CHOICE_LABEL[cpu_choice],
                            f_small, cc, ccx, ccy + 72, alpha=result_alpha)
 
@@ -531,13 +537,13 @@ while running:
         # Animated banner bg
         bw = int(320 + 10 * math.sin(pulse_t * 5))
         draw_rounded_rect(screen, tuple(c//5 for c in rcol),
-                          (WIDTH//2 - bw//2, 455, bw, 50), r=14, alpha=result_alpha)
+                          (WIDTH//2 - bw//2, 383, bw, 50), r=14, alpha=result_alpha)
         pygame.draw.rect(screen, rcol,
-                         (WIDTH//2 - bw//2, 455, bw, 50), 2, border_radius=14)
+                         (WIDTH//2 - bw//2, 383, bw, 50), 2, border_radius=14)
 
         r_surf = f_big.render(result_str, True, rcol)
         r_surf.set_alpha(result_alpha)
-        screen.blit(r_surf, r_surf.get_rect(center=(WIDTH//2, 480)))
+        screen.blit(r_surf, r_surf.get_rect(center=(WIDTH//2, 408)))
 
     else:
         # Idle prompt
@@ -560,7 +566,7 @@ while running:
 
     # ── History ──
     if history:
-        draw_history(screen, 62, HEIGHT - 68)
+        draw_history(screen, 62, HEIGHT - 80)
 
     # ── Choice Buttons ──
     locked = (phase == "showing")
@@ -580,7 +586,7 @@ while running:
     rc = (70, 70, 120) if rh else (40, 40, 80)
     draw_rounded_rect(screen, rc, reset_rect, r=10)
     pygame.draw.rect(screen, (90, 90, 150), reset_rect, 1, border_radius=10)
-    rt = f_tiny.render("↺  Reset Scores", True, WHITE)
+    rt = f_tiny.render(" Reset Scores", True, WHITE)
     screen.blit(rt, rt.get_rect(center=reset_rect.center))
 
     # ── Footer ──
@@ -588,5 +594,11 @@ while running:
     screen.blit(ft, ft.get_rect(bottomright=(WIDTH - 12, HEIGHT - 8)))
 
     pygame.display.flip()
+
+
+
+
+
+
 
 pygame.quit()
