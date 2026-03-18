@@ -1,4 +1,4 @@
-# Rock Paper Scissors
+# Rock Paper Scissors Game
 A feature-rich, animated Rock Paper Scissors game built with Python and Pygame.
 
 ---
@@ -20,7 +20,7 @@ A feature-rich, animated Rock Paper Scissors game built with Python and Pygame.
 - Particle explosion effects on every round result
 - Smooth button hover animations with glow effects
 - Win / loss streak tracker with live badge
-- Round history bar showing last 10 results
+- Round history bar showing last 15 results
 - Score cards for Player, Computer, Draws and Rounds
 - Support for custom PNG icons for Rock, Paper and Scissors
 - Reset scores with button click or keyboard shortcut
