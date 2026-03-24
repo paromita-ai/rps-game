@@ -109,7 +109,7 @@ with col_m:
  st.title("Rock Paper Scissors")
 _, col_m, _ = st.columns([1, 2.4, 1])
 with col_m:
- st.caption("Built with Streamlit · by Progya Paromita Saha · DIU CIS 2025")
+ st.caption("Built with Streamlit · by Progya Paromita Saha · DIU CIS 2026")
 
 # ── Reset button ───────────────────────────────────────────────────────────────
 _, col_m, _ = st.columns([1, 0.7, 1])
